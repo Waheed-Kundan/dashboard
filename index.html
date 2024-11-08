@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Flipping Counter with Date Picker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css" />
+  <style>
+    * { margin: 0; padding: 0; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #6c63ff, #ff6b6b);
+    }
+    #counter {
+      font-size: 4em;
+      margin: 20px;
+      color: #0078D7;
+    }
+    #account-opens {
+      font-size: 1.5em;
+      margin-top: 10px;
+      color: #333;
+      font-weight: bold;
+    }
+    #controls {
+      display: flex;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+    #controls:hover {
+      transform: scale(1.05);
+    }
+    .date-picker-container input {
+      width: 180px;
+      padding: 12px 15px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 2px solid #6c63ff;
+      background: #f8f8f8;
+      transition: all 0.3s ease;
+      margin-bottom: 15px;
+    }
+    .date-picker-container input:focus {
+      outline: none;
+      border-color: #ff6b6b;
+      background: #fff;
+    }
+    .date-label {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 5px;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .odometer { font-size: 4em; color: #91deff; }
+    #chart-container {
+      position: relative;
+      height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .date-picker-container {
+      display: flex;
+      align-items: center;
+    }
+    .date-picker-container::before {
+      content: "📅";
+      font-size: 30px;
+      color: #ff6b6b;
+      margin-right: 15px;
+      margin-top: 5px;
+    }
+
+    /* Sexy Button Styles */
+    button {
+      padding: 12px 30px;
+      font-size: 18px;
+      color: white;
+      background: linear-gradient(45deg, #ff6b6b, #6c63ff);
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 220px;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #6c63ff, #ff6b6b);
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    button:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="controls" class="date-picker-container">
+    <div>
+      <label for="start-date" class="date-label">Start Date:</label><br>
+      <input type="date" id="start-date" placeholder="Select Start Date">
+    </div>
+    <div>
+      <label for="end-date" class="date-label">End Date:</label><br>
+      <input type="date" id="end-date" placeholder="Select End Date">
+    </div>
+    <button onclick="fetchDataAndUpdateCounter()">Submit</button>
+  </div>
+
+  <div id="chart-container">
+    <div id="counter"><span id="odometer" class="odometer">0</span></div>
+    <div id="account-opens">Account Opens</div>
+  </div>
+
+  <!-- Odometer JavaScript Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
+  <script>
+    const odometerElement = document.getElementById('odometer');
+    
+    const fetchDataAndUpdateCounter = async () => {
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+
+      if (!startDate || !endDate) {
+        alert("Please select both start and end dates.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://oracleapex:8080/ords/wisereport/select/get/?startDate=${startDate}&endDate=${endDate}`);
+        const data = await response.json();
+        const value = data.items[0].account_opened || 0;
+
+        // Update the odometer value with a smooth flipping effect
+        odometerElement.innerHTML = value;
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    // Set default dates and fetch data on load
+    const defaultStartDate = '2023-10-01';
+    const defaultEndDate = '2024-10-31';
+    document.getElementById('start-date').value = defaultStartDate;
+    document.getElementById('end-date').value = defaultEndDate;
+    fetchDataAndUpdateCounter();
+
+    // Refresh every 30 seconds
+    setInterval(fetchDataAndUpdateCounter, 30000);
+  </script>
+
+</body>
+</html>
