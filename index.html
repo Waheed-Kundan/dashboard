@@ -130,8 +130,15 @@
     <div id="account-opens">Account Opens</div>
   </div>
 
+  <canvas id="ganttChart"></canvas>
+  <canvas id="dailyBrokerageGraph"></canvas>
+  <canvas id="branchBrokerageComparison"></canvas>
+  <canvas id="traderBrokerageComparison"></canvas>
+
   <!-- Odometer JavaScript Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
     const odometerElement = document.getElementById('odometer');
     
@@ -166,6 +173,105 @@
 
     // Refresh every 30 seconds
     setInterval(fetchDataAndUpdateCounter, 30000);
+
+    // Dummy data for charts
+    const dummyData = {
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+      psx: [12, 19, 3, 5, 2, 3, 10],
+      bma: [2, 3, 20, 5, 1, 4, 15],
+      dailyBrokerage: [65, 59, 80, 81, 56, 55, 40],
+      branchBrokerage: [28, 48, 40, 19, 86, 27, 90],
+      traderBrokerage: [18, 48, 77, 9, 100, 27, 40]
+    };
+
+    function fetchGanttData(startDate, endDate) {
+      const ctx = document.getElementById('ganttChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dummyData.labels,
+          datasets: [
+            {
+              label: 'PSX',
+              data: dummyData.psx,
+              backgroundColor: 'rgba(75,192,192,0.4)',
+            },
+            {
+              label: 'BMA',
+              data: dummyData.bma,
+              backgroundColor: 'rgba(153,102,255,0.4)',
+            },
+          ],
+        },
+      });
+    }
+
+    function fetchDailyBrokerage(startDate, endDate) {
+      const ctx = document.getElementById('dailyBrokerageGraph').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dummyData.labels,
+          datasets: [
+            {
+              label: 'Daily Brokerage',
+              data: dummyData.dailyBrokerage,
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1,
+            },
+          ],
+        },
+      });
+    }
+
+    function fetchBranchBrokerageComparison(startDate, endDate) {
+      const ctx = document.getElementById('branchBrokerageComparison').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dummyData.labels,
+          datasets: [
+            {
+              label: 'Branch Brokerage',
+              data: dummyData.branchBrokerage,
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 1,
+            },
+          ],
+        },
+      });
+    }
+
+    function fetchTraderBrokerageComparison(startDate, endDate) {
+      const ctx = document.getElementById('traderBrokerageComparison').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dummyData.labels,
+          datasets: [
+            {
+              label: 'Trader Brokerage',
+              data: dummyData.traderBrokerage,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+            },
+          ],
+        },
+      });
+    }
+
+    function fetchData(startDate, endDate) {
+      fetchGanttData(startDate, endDate);
+      fetchDailyBrokerage(startDate, endDate);
+      fetchBranchBrokerageComparison(startDate, endDate);
+      fetchTraderBrokerageComparison(startDate, endDate);
+    }
+
+    // Initial fetch to populate the dashboard
+    fetchData(defaultStartDate, defaultEndDate);
   </script>
 
 </body>
