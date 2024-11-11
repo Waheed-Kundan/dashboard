@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Flipping Counter with Date Picker</title>
+  <title>Compact Dashboard with Counter Icon</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
-    * { margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       display: flex;
       flex-direction: column;
@@ -14,42 +15,55 @@
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #6c63ff, #ff6b6b);
     }
-    #counter {
-      font-size: 4em;
+    #counter-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 20px;
       margin: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      width: 200px;
+      text-align: center;
+      flex-direction: column;
+      position: relative;
+    }
+    .counter-icon {
+      font-size: 3em;
       color: #0078D7;
+      margin-bottom: 10px;
+    }
+    #odometer {
+      font-size: 2.5em;
+      color: #333;
     }
     #account-opens {
-      font-size: 1.5em;
-      margin-top: 10px;
+      font-size: em;
       color: #333;
       font-weight: bold;
+      margin-top: 5px;
     }
     #controls {
       display: flex;
-      gap: 20px;
+      gap: 10px;
       background: rgba(255, 255, 255, 0.8);
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
-      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       flex-wrap: wrap;
       justify-content: center;
-      width: 100%;
-    }
-    #controls:hover {
-      transform: scale(1.05);
+      width: 90%;
+      max-width: 800px;
     }
     .date-picker-container input {
-      width: 180px;
-      padding: 12px 15px;
-      font-size: 16px;
-      border-radius: 10px;
+      width: 150px;
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 8px;
       border: 2px solid #6c63ff;
       background: #f8f8f8;
       transition: all 0.3s ease;
-      margin-bottom: 15px;
     }
     .date-picker-container input:focus {
       outline: none;
@@ -57,56 +71,45 @@
       background: #fff;
     }
     .date-label {
-      font-size: 18px;
+      font-size: 16px;
       color: #333;
-      margin-bottom: 5px;
       font-weight: bold;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      margin-bottom: 5px;
     }
-    .odometer { font-size: 4em; color: #0078D7; }
     #chart-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 30px;
+      gap: 15px;
       justify-content: center;
-      padding: 20px;
-      width: 100%;
-      max-width: 1200px;
+      padding: 15px;
+      width: 90%;
+      max-width: 1000px;
     }
     .chart {
-      width: 400px;
-      height: 300px;
+      width: 280px;
+      height: 220px;
       background-color: #fff;
-      border-radius: 10px;
+      border-radius: 8px;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      padding: 15px;
+      padding: 10px;
     }
-
-    /* Sexy Button Styles */
     button {
-      padding: 12px 30px;
-      font-size: 18px;
+      padding: 10px 25px;
+      font-size: 16px;
       color: white;
       background: linear-gradient(45deg, #ff6b6b, #6c63ff);
       border: none;
-      border-radius: 25px;
+      border-radius: 20px;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       width: 100%;
-      max-width: 220px;
-      margin-top: 15px;
+      max-width: 150px;
+      margin-top: 10px;
     }
-
     button:hover {
       background: linear-gradient(45deg, #6c63ff, #ff6b6b);
       transform: scale(1.05);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    button:active {
-      transform: scale(0.98);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
   </style>
 </head>
@@ -124,8 +127,11 @@
     <button onclick="fetchDataAndUpdateCounter()">Submit</button>
   </div>
 
-  <div id="counter"><span id="odometer" class="odometer">0</span></div>
-  <div id="account-opens">Account Opens</div>
+  <div id="counter-box">
+    <i class="fas fa-user-friends counter-icon"></i>
+    <div id="odometer" class="odometer">0</div>
+    <div id="account-opens"></div>
+  </div>
 
   <div id="chart-container">
     <canvas id="ganttChart" class="chart"></canvas>
@@ -134,13 +140,12 @@
     <canvas id="traderBrokerageComparison" class="chart"></canvas>
   </div>
 
-  <!-- Odometer JavaScript Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
     const odometerElement = document.getElementById('odometer');
-    
+
     const fetchDataAndUpdateCounter = async () => {
       const startDate = document.getElementById('start-date').value;
       const endDate = document.getElementById('end-date').value;
@@ -161,7 +166,6 @@
       }
     };
 
-    // Set default dates and fetch data on load
     const defaultStartDate = '2023-10-01';
     const defaultEndDate = '2024-10-31';
     document.getElementById('start-date').value = defaultStartDate;
@@ -203,7 +207,7 @@
       createChart('traderBrokerageComparison', 'line', 'Trader Brokerage', dummyData.traderBrokerage, 'rgba(153, 102, 255, 0.2)', 'rgba(153, 102, 255, 1)');
     }
 
-    fetchData();
+    window.onload = fetchData;
   </script>
 </body>
 </html>
